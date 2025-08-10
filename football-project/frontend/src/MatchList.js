@@ -24,7 +24,7 @@ function MatchList() {
     const fetchMatches = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`http://localhost:5001/api/matches/date/${selectedDate}`);
+            const response = await axios.get(`https://football-mania.onrender.com/api/matches/date/${selectedDate}`);
             setMatches(response.data);
         } catch (error) {
             console.error('Error fetching matches:', error);
