@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Pitch from './Pitch';
-import Substitutions from './Substitutions'; // Import the new component
+import Substitutions from './Substitutions';
 
 function MatchPage() {
   const { fixtureId } = useParams();
@@ -14,7 +14,7 @@ function MatchPage() {
     const fetchFixtureData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://localhost:5001/api/fixture/${fixtureId}`);
+        const response = await axios.get(`https://football-mania.onrender.com/api/fixture/${fixtureId}`);
         setFixture(response.data);
       } catch (error) {
         console.error('Error fetching fixture data:', error);
@@ -100,5 +100,3 @@ function MatchPage() {
 }
 
 export default MatchPage;
-
-    
