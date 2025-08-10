@@ -1,4 +1,4 @@
-    // src/PlayerPage.js
+// src/PlayerPage.js
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -12,11 +12,17 @@ function PlayerPage() {
   useEffect(() => {
     axios.get(`https://football-mania.onrender.com/api/player/${playerId}/fixture/${fixtureId}`)
       .then(response => {
-        setPlayer(response.data);
+        // FIX: Check if the response data is valid
+        if (response.data && response.data.player) {
+          setPlayer(response.data);
+        } else {
+          setPlayer(null); // Set to null if no valid data is returned
+        }
         setLoading(false);
       })
       .catch(error => {
         console.error('Error fetching player data:', error);
+        setPlayer(null);
         setLoading(false);
       });
   }, [playerId, fixtureId]);
@@ -25,8 +31,14 @@ function PlayerPage() {
     return <div className="loader"></div>;
   }
 
+  // FIX: Show a helpful message if player data is not available
   if (!player) {
-    return <h2>Player not found.</h2>;
+    return (
+        <div className="player-details-page">
+            <h2>Player Stats Not Available</h2>
+            <p>Detailed statistics for individual players may be a premium feature and not available on the free API plan.</p>
+        </div>
+    );
   }
 
   const stats = player.statistics[0];
