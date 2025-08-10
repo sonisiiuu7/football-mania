@@ -1,5 +1,5 @@
 // src/LeaguesPage.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
@@ -8,7 +8,8 @@ function LeaguesPage() {
   const [loading, setLoading] = useState(true);
 
   // A curated list of popular league IDs for a better user experience
-  const popularLeagueIds = [39, 140, 135, 78, 61, 2, 3]; // Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Champions League, Europa League
+  // FIX: useMemo will prevent this array from being recreated on every render
+  const popularLeagueIds = useMemo(() => [39, 140, 135, 78, 61, 2, 3], []); // Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Champions League, Europa League
 
   useEffect(() => {
     const fetchLeagues = async () => {
@@ -25,7 +26,7 @@ function LeaguesPage() {
     };
 
     fetchLeagues();
-  }, []);
+  }, [popularLeagueIds]); // FIX: Added popularLeagueIds to the dependency array
 
   if (loading) {
     return <div className="loader"></div>;
