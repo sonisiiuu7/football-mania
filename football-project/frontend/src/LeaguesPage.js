@@ -11,8 +11,8 @@ function LeaguesPage() {
     const fetchLeagues = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('https://football-mania.onrender.com/api/leagues');
-        // FIX: Removed the filter to display all leagues available on the free plan
+        const apiUrl = `${process.env.REACT_APP_API_URL}/api/leagues`;
+        const response = await axios.get(apiUrl);
         setLeagues(response.data);
       } catch (error) {
         console.error('Error fetching leagues:', error);
