@@ -69,8 +69,8 @@ app.get('/api/summary/:fixtureId', async (req, res) => {
     const eventDetails = formatMatchEventsForAI(fixtureData);
     const prompt = `Generate a 2-paragraph, news-style summary for a football match with the following key events:\n${eventDetails}`;
 
-    // 3. Call the Gemini API with the CORRECT model name
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    // 3. Call the Gemini API with the CORRECT, most up-to-date model name
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
