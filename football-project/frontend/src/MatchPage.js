@@ -9,6 +9,8 @@ function MatchPage() {
   const { fixtureId } = useParams();
   const [fixture, setFixture] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState('');
+  const [isSummaryLoading, setIsSummaryLoading] = useState(false);
 
   useEffect(() => {
     const fetchFixtureData = async () => {
@@ -16,11 +18,30 @@ function MatchPage() {
       try {
         const apiUrl = `${process.env.REACT_APP_API_URL}/api/fixture/${fixtureId}`;
         const response = await axios.get(apiUrl);
-        setFixture(response.data);
+        const fixtureData = response.data;
+        setFixture(fixtureData);
+
+        // If the match is finished, fetch the AI summary
+        if (fixtureData && fixtureData.fixture.status.short === 'FT') {
+          fetchSummary(fixtureId);
+        }
       } catch (error) {
         console.error('Error fetching fixture data:', error);
       }
       setLoading(false);
+    };
+
+    const fetchSummary = async (id) => {
+      setIsSummaryLoading(true);
+      try {
+        const summaryApiUrl = `${process.env.REACT_APP_API_URL}/api/summary/${id}`;
+        const response = await axios.get(summaryApiUrl);
+        setSummary(response.data.summary);
+      } catch (error) {
+        console.error('Error fetching summary:', error);
+        setSummary('Could not load match summary.');
+      }
+      setIsSummaryLoading(false);
     };
 
     fetchFixtureData();
@@ -64,6 +85,18 @@ function MatchPage() {
             <h2>{awayTeam.name}</h2>
         </div>
       </div>
+
+      {/* --- AI Summary Section --- */}
+      {fixture.fixture.status.short === 'FT' && (
+        <div className="summary-section">
+          <h3>Match Summary</h3>
+          {isSummaryLoading ? (
+            <p>Generating summary...</p>
+          ) : (
+            <p className="summary-text">{summary.replace(/\*/g, '')}</p> // Removes markdown like asterisks
+          )}
+        </div>
+      )}
       
       <h3>Match Statistics</h3>
       <div className="stats-comparison">
