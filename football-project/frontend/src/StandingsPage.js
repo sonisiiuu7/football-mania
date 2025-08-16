@@ -12,7 +12,8 @@ function StandingsPage() {
     const fetchStandings = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://localhost:5001/api/standings/league/${leagueId}`);
+        const apiUrl = `${process.env.REACT_APP_API_URL}/api/standings/league/${leagueId}`;
+        const response = await axios.get(apiUrl);
         // The API returns an array, we usually want the first element
         setStandings(response.data[0]);
       } catch (error) {
@@ -28,7 +29,7 @@ function StandingsPage() {
     return <div className="loader"></div>;
   }
 
-  if (!standings || standings.league.standings[0].length === 0) {
+  if (!standings || !standings.league || !standings.league.standings || standings.league.standings.length === 0 || standings.league.standings[0].length === 0) {
     return <h2>Standings not available for this league.</h2>;
   }
 
