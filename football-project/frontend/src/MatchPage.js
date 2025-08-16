@@ -14,7 +14,8 @@ function MatchPage() {
     const fetchFixtureData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`https://football-mania.onrender.com/api/fixture/${fixtureId}`);
+        const apiUrl = `${process.env.REACT_APP_API_URL}/api/fixture/${fixtureId}`;
+        const response = await axios.get(apiUrl);
         setFixture(response.data);
       } catch (error) {
         console.error('Error fetching fixture data:', error);
@@ -67,19 +68,19 @@ function MatchPage() {
       <h3>Match Statistics</h3>
       <div className="stats-comparison">
         <div className="stat-row">
-          <span>{getStat(homeStats, 'Total Shots')}</span>
+          <span>{getStat(homeStats, 'Total Shots') || 0}</span>
           <p>Total Shots</p>
-          <span>{getStat(awayStats, 'Total Shots')}</span>
+          <span>{getStat(awayStats, 'Total Shots') || 0}</span>
         </div>
         <div className="stat-row">
-          <span>{getStat(homeStats, 'Shots on Goal')}</span>
+          <span>{getStat(homeStats, 'Shots on Goal') || 0}</span>
           <p>Shots on Goal</p>
-          <span>{getStat(awayStats, 'Shots on Goal')}</span>
+          <span>{getStat(awayStats, 'Shots on Goal') || 0}</span>
         </div>
         <div className="stat-row">
-          <span>{getStat(homeStats, 'Ball Possession')}</span>
+          <span>{getStat(homeStats, 'Ball Possession') || '0%'}</span>
           <p>Ball Possession</p>
-          <span>{getStat(awayStats, 'Ball Possession')}</span>
+          <span>{getStat(awayStats, 'Ball Possession') || '0%'}</span>
         </div>
       </div>
 
