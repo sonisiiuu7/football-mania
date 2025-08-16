@@ -4,11 +4,25 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 
 app.use(cors());
 
 // --- API Endpoints ---
+
+// Generic error handler for more detailed logging
+const createErrorHandler = (apiName) => (error, res) => {
+  console.error(`Error fetching from ${apiName}:`, error.message);
+  if (error.response) {
+    console.error('API Response Status:', error.response.status);
+    console.error('API Response Data:', error.response.data);
+    // Forward the status code if it's a client-side or server-side error from the API
+    if (error.response.status >= 400) {
+      return res.status(error.response.status).json({ message: `Failed to fetch data from the provider. Status: ${error.response.status}` });
+    }
+  }
+  res.status(500).json({ message: `Failed to fetch ${apiName}.` });
+};
 
 // Get matches for a specific date
 app.get('/api/matches/date/:date', async (req, res) => {
@@ -20,7 +34,7 @@ app.get('/api/matches/date/:date', async (req, res) => {
         });
         res.json(response.data.response);
     } catch (error) {
-        res.status(500).json({ message: 'Failed to fetch matches for date.' });
+        createErrorHandler('matches for date')(error, res);
     }
 });
 
@@ -34,7 +48,7 @@ app.get('/api/fixture/:fixtureId', async (req, res) => {
         });
         res.json(response.data.response[0]);
     } catch (error) {
-        res.status(500).json({ message: 'Failed to fetch fixture data.' });
+        createErrorHandler('fixture data')(error, res);
     }
 });
 
@@ -48,7 +62,7 @@ app.get('/api/player/:playerId/fixture/:fixtureId', async (req, res) => {
     });
     res.json(response.data.response[0]);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch single player data.' });
+    createErrorHandler('single player data')(error, res);
   }
 });
 
@@ -62,7 +76,7 @@ app.get('/api/leagues', async (req, res) => {
         });
         res.json(response.data.response);
     } catch (error) {
-        res.status(500).json({ message: 'Failed to fetch leagues.' });
+        createErrorHandler('leagues')(error, res);
     }
 });
 
@@ -77,14 +91,14 @@ app.get('/api/standings/league/:leagueId', async (req, res) => {
         });
         res.json(response.data.response);
     } catch (error) {
-        res.status(500).json({ message: 'Failed to fetch standings.' });
+        createErrorHandler('standings')(error, res);
     }
 });
 
 
 // Start the server!
 app.listen(PORT, () => {
-  console.log(`🧠 Brain is up and running on port ${PORT}. Ready for action!`);
+  console.log(`Server is running on port ${PORT}.`);
 });
 
 
