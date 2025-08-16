@@ -23,12 +23,18 @@ function MatchList() {
   useEffect(() => {
     const fetchMatches = async () => {
         setLoading(true);
+        setError(''); // Clear previous errors
         try {
-            const response = await axios.get(`https://football-mania.onrender.com/api/matches/date/${selectedDate}`);
+            const apiUrl = `${process.env.REACT_APP_API_URL}/api/matches/date/${selectedDate}`;
+            const response = await axios.get(apiUrl);
             setMatches(response.data);
         } catch (error) {
             console.error('Error fetching matches:', error);
-            setError('Could not load matches. Is the backend server running?');
+            if (error.response && error.response.status === 429) {
+              setError('The API limit has likely been reached. Please try again later.');
+            } else {
+              setError('Could not load matches. Please ensure the backend server is running.');
+            }
         }
         setLoading(false);
     };
@@ -76,7 +82,7 @@ function MatchList() {
         </div>
       </div>
       {loading ? <div className="loader"></div> :
-       error ? <p>{error}</p> :
+       error ? <p className="error-message">{error}</p> :
        filteredMatches.length === 0 ? <p>No matches found.</p> :
         filteredMatches.map(match => (
           <Link to={`/match/${match.fixture.id}`} key={match.fixture.id} className="match-card-link">
