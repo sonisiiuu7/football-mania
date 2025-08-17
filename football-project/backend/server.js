@@ -4,13 +4,19 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 require('dotenv').config();
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+// --- UPDATED IMPORTS ---
+const { GoogleAuth } = require('google-auth-library');
+const { GenerativeLanguage } = require('@google/generative-ai');
+
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// Initialize Google AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// --- UPDATED INITIALIZATION TO USE v1beta API ---
+const auth = new GoogleAuth().fromAPIKey(process.env.GEMINI_API_KEY);
+const client = new GenerativeLanguage({ auth, apiVersion: 'v1beta' });
+
 
 app.use(cors());
 
@@ -50,7 +56,7 @@ const createErrorHandler = (apiName) => (error, res) => {
   res.status(500).json({ message: `Failed to fetch ${apiName}.` });
 };
 
-// --- NEW AI SUMMARY ENDPOINT ---
+// --- AI SUMMARY ENDPOINT ---
 app.get('/api/summary/:fixtureId', async (req, res) => {
   const { fixtureId } = req.params;
   try {
@@ -69,20 +75,22 @@ app.get('/api/summary/:fixtureId', async (req, res) => {
     const eventDetails = formatMatchEventsForAI(fixtureData);
     const prompt = `Generate a 2-paragraph, news-style summary for a football match with the following key events:\n${eventDetails}`;
 
-    // 3. Call the Gemini API with the correct, stable model name
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    // 3. Call the Gemini API using the new client and method
+    const result = await client.generateText({
+      model: 'models/gemini-pro', // Use the full model path
+      prompt: { text: prompt },
+    });
 
     // 4. Send the summary back to the client
-    res.json({ summary: text });
+    res.json({ summary: result[0].candidates[0].output });
 
   } catch (error) {
     createErrorHandler('AI summary')(error, res);
   }
 });
 
+
+// --- Other Endpoints ---
 
 // Get matches for a specific date
 app.get('/api/matches/date/:date', async (req, res) => {
@@ -158,6 +166,7 @@ app.get('/api/standings/league/:leagueId', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
+
 
 
 
